@@ -74,12 +74,10 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
 
 <body class="bg-gray-50 min-h-screen flex">
 
-
     <?php include "sidebar.php"; ?> <!-- Sidebar menu -->
 
-    <main class="flex-1 p-6 space-y-6">
-
-
+    <!-- Add a wrapper for the main content -->
+    <div id="mainContent" class="flex-1 p-6 space-y-6 transition-all duration-300">
         <!-- Filters -->
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded shadow">
             <input type="text" name="search" placeholder="🔍 Rechercher par objet ou détail" value="<?= htmlspecialchars($search) ?>" class="px-3 py-2 border rounded w-full">
@@ -143,17 +141,15 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
                 </tbody>
             </table>
         </div>
-        <script>
-            $(function() {
-                $("#toggleSidebar").on("click", function() {
-                    $("#sidebar").toggleClass("-translate-x-full");
-                });
+    </div>
+
+    <script>
+        $(function() {
+            $("#toggleSidebar").on("click", function() {
+                $("#sidebar").toggleClass("-translate-x-full");
+                $("#mainContent").toggleClass("ml-64"); // Adjust the margin when the sidebar is toggled
             });
-        </script>
-
-
-    </main>
+        });
+    </script>
 
 </body>
-
-</html>
