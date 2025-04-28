@@ -78,6 +78,7 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
 
     <!-- Add a wrapper for the main content -->
     <div id="mainContent" class="flex-1 p-6 space-y-6 transition-all duration-300">
+        <h1 class="text-3xl font-bold">Dashboard</h1>
         <!-- Filters -->
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded shadow">
             <input type="text" name="search" placeholder="🔍 Rechercher par objet ou détail" value="<?= htmlspecialchars($search) ?>" class="px-3 py-2 border rounded w-full">

@@ -15,7 +15,6 @@
         <button id="toggleSidebar" class="text-white text-2xl focus:outline-none mr-4 ">
             ☰ &nbsp; CiRM
         </button>
-        <h1 class="text-xl font-bold"> Tableau de Bord</h1>
 
         <!-- PROFILE DROPDOWN -->
         <div class="relative inline-block text-left">

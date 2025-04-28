@@ -4,7 +4,7 @@
         <a href="dashboard.php" class="px-6 py-4 hover:bg-blue-800 w-full">🏠 Tableau de Bord</a>
 
         <?php if (isset($_SESSION["role"]) && $_SESSION["role"] === "admin"): ?>
-            <a href="manage_users.php" class="px-6 py-4 hover:bg-blue-800 w-full">👥 Utilisateurs</a>
+            <a href="utilisateurs.php" class="px-6 py-4 hover:bg-blue-800 w-full">👥 Utilisateurs</a>
             <a href="dashboard.php" class="px-6 py-4 hover:bg-blue-800 w-full">📂 Réclamations</a>
         <?php elseif ($_SESSION["role"] === "dispatcher"): ?>
             <a href="add_requete.php" class="px-6 py-4 hover:bg-blue-800 w-full">➕ Nouvelle Réclamation</a>
