@@ -13,6 +13,8 @@
         <?php elseif ($_SESSION["role"] === "agent"): ?>
             <a href="dashboard.php" class="px-6 py-4 hover:bg-blue-800 w-full">📂 Mes Réclamations</a>
         <?php endif; ?>
+        <a href="profil.php" class="px-6 py-4 hover:bg-blue-800 w-full">👤 Mon Profil</a>
+
     </div>
 </aside>
 
