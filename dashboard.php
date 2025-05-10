@@ -16,10 +16,12 @@ $filter_status = $_GET["statut"] ?? "";
 $filter_entite = $_GET["entite"] ?? "";
 $filter_type = $_GET["type"] ?? "";
 $search = $_GET["search"] ?? "";
+$filter_date = $_GET["date"] ?? "";
 
 $where = "WHERE 1";
 $params = [];
 
+// Adding the user's role filter
 if ($role === "agent") {
     $where .= " AND r.id_entite = (SELECT entite_id FROM users WHERE id = ?)";
     $params[] = $user_id;
@@ -42,6 +44,10 @@ if ($search !== "") {
     $params[] = "%$search%";
     $params[] = "%$search%";
 }
+if ($filter_date !== "") {
+    $where .= " AND r.date_reception = ?";
+    $params[] = $filter_date;
+}
 
 // === Get data ===
 $sql = "SELECT r.id, r.objet, r.date_reception, s.libelle AS statut, e.nom AS entite, t.libelle AS type
@@ -49,10 +55,15 @@ $sql = "SELECT r.id, r.objet, r.date_reception, s.libelle AS statut, e.nom AS en
         JOIN statuts s ON r.id_statut = s.id
         JOIN entites e ON r.id_entite = e.id
         JOIN types_reclamation t ON r.id_type = t.id
-        $where ORDER BY r.date_reception DESC";
+        $where ORDER BY r.id DESC";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+if (!$stmt) {
+    die("Error preparing statement: " . implode(" ", $pdo->errorInfo()));
+}
+if (!$stmt->execute($params)) {
+    die("Error executing statement: " . implode(" ", $stmt->errorInfo()));
+}
 $requetes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get options for filters
@@ -71,16 +82,24 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
-
 <body class="bg-gray-50 min-h-screen flex">
 
     <?php include "sidebar.php"; ?> <!-- Sidebar menu -->
 
     <!-- Add a wrapper for the main content -->
     <div id="mainContent" class="flex-1 p-6 space-y-6 transition-all duration-300">
-        <h1 class="text-3xl font-bold">Dashboard</h1>
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Dashboard</h1>
+            <!-- Button to add a new request -->
+            <?php if ($role === "dispatcher"): ?>
+            <a href="ajouter_requete.php" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            ➕ &nbsp;Nouvelle Requête
+            </a>
+            <?php endif; ?>
+        </div>
+
         <!-- Filters -->
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded shadow">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white p-4 rounded shadow">
             <input type="text" name="search" placeholder="🔍 Rechercher par objet ou détail" value="<?= htmlspecialchars($search) ?>" class="px-3 py-2 border rounded w-full">
 
             <select name="statut" class="px-3 py-2 border rounded w-full">
@@ -109,6 +128,8 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
                     </option>
                 <?php endforeach; ?>
             </select>
+
+            <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>" class="px-3 py-2 border rounded w-full">
         </form>
 
         <!-- Complaints List -->
@@ -126,31 +147,31 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
                     </tr>
                 </thead>
                 <tbody class="divide-y">
-                    <?php foreach ($requetes as $r): ?>
+                    <?php if (empty($requetes)): ?>
                         <tr>
-                            <td class="px-4 py-2 font-semibold text-blue-800">#<?= $r["id"] ?></td>
-                            <td class="px-4 py-2"><?= htmlspecialchars($r["objet"]) ?></td>
-                            <td class="px-4 py-2"><?= $r["date_reception"] ?></td>
-                            <td class="px-4 py-2"><?= $r["statut"] ?></td>
-                            <td class="px-4 py-2"><?= $r["entite"] ?></td>
-                            <td class="px-4 py-2"><?= $r["type"] ?></td>
-                            <td class="px-4 py-2">
-                                <a href="view_requete.php?id=<?= $r["id"] ?>" class="text-blue-600 hover:underline">Voir</a>
-                            </td>
+                            <td colspan="7" class="px-4 py-2 text-center">Aucune réclamation trouvée.</td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <?php foreach ($requetes as $r): ?>
+                            <tr>
+                                <td class="px-4 py-2 font-semibold text-blue-800">#<?= $r["id"] ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($r["objet"]) ?></td>
+                                <td class="px-4 py-2"><?= $r["date_reception"] ?></td>
+                                <td class="px-4 py-2"><?= $r["statut"] ?></td>
+                                <td class="px-4 py-2"><?= $r["entite"] ?></td>
+                                <td class="px-4 py-2"><?= $r["type"] ?></td>
+                                <td class="px-4 py-2">
+                                    <a href="view_requete.php?id=<?= $r["id"] ?>" class="text-blue-600 hover:underline">Voir</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <script>
-        $(function() {
-            $("#toggleSidebar").on("click", function() {
-                $("#sidebar").toggleClass("-translate-x-full");
-                $("#mainContent").toggleClass("ml-64"); // Adjust the margin when the sidebar is toggled
-            });
-        });
-    </script>
-
+    <script></script>
+    <?php include "footer.php"; ?>
 </body>
+</html>
