@@ -51,7 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["new_statut"])) {
         2 => 3  // prise en charge -> clôturée
     ];
 
-    if ($_SESSION["role"] === "agent" &&
+    if (
+        $_SESSION["role"] === "agent" &&
         isset($allowed_transitions[$current_statut]) &&
         $allowed_transitions[$current_statut] === $new_statut
     ) {
@@ -100,6 +101,14 @@ include_once "nav.php";
                 2 => 'bg-green-200 text-green-800 border-green-400',     // prise en charge
                 3 => 'bg-orange-200 text-orange-800 border-orange-400',  // clôturée
             ];
+            $urgence = strtolower($requete["urgence"]);
+            $urgence_colors = [
+                "faible"  => "bg-green-100 text-green-800 border-green-300",
+                "normale" => "bg-yellow-100 text-yellow-800 border-yellow-300",
+                "urgent"  => "bg-red-100 text-red-800 border-red-300"
+            ];
+            $urgence_class = ((int)$requete["id_statut"] === 3) ? 'bg-gray-100 text-gray-800 border-gray-300' : ($urgence_colors[$urgence] ?? 'bg-gray-100 text-gray-800 border-gray-300');
+
             $color_class = $statut_colors[$statut_id] ?? 'bg-gray-200 text-gray-800 border-gray-400';
             ?>
             <div class="ml-4 inline-block px-3 py-1 rounded border text-sm font-semibold <?= $color_class ?>">
@@ -123,9 +132,9 @@ include_once "nav.php";
                 <input type="text" disabled value="<?= $requete["date_reception"] ?>" class="w-full px-3 py-2 border rounded bg-gray-100">
             </div>
 
-            <div>
+            <div class="rounded p-2 <?= $urgence_class ?>">
                 <label class="block font-semibold">Urgence</label>
-                <input type="text" disabled value="<?= $requete["urgence"] ?>" class="w-full px-3 py-2 border rounded bg-gray-100">
+                <input type="text" disabled value="<?= htmlspecialchars($requete["urgence"]) ?>" class="w-full px-3 py-2 border rounded bg-transparent">
             </div>
 
             <div class="col-span-2">
