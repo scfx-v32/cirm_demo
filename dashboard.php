@@ -70,7 +70,16 @@ $requetes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $statuts = $pdo->query("SELECT id, libelle FROM statuts")->fetchAll(PDO::FETCH_ASSOC);
 $entites = $pdo->query("SELECT id, nom FROM entites")->fetchAll(PDO::FETCH_ASSOC);
 $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO::FETCH_ASSOC);
+
+// Map status labels to Tailwind color classes
+$status_colors = [
+    "requête envoyée" => "bg-yellow-100 text-yellow-800 border-yellow-300",
+    "prise en charge" => "bg-blue-100 text-blue-800 border-blue-300",
+    "clôturée"        => "bg-green-100 text-green-800 border-green-300"
+];
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -92,46 +101,51 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
             <h1 class="text-3xl font-bold">Dashboard</h1>
             <!-- Button to add a new request -->
             <?php if ($role === "dispatcher"): ?>
-            <a href="ajouter_requete.php" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            ➕ &nbsp;Nouvelle Requête
-            </a>
+                <a href="ajouter_requete.php" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    ➕ &nbsp;Nouvelle Requête
+                </a>
             <?php endif; ?>
         </div>
 
         <!-- Filters -->
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white p-4 rounded shadow">
-            <input type="text" name="search" placeholder="🔍 Rechercher par objet ou détail" value="<?= htmlspecialchars($search) ?>" class="px-3 py-2 border rounded w-full">
+        <div>
+            <form method="GET" class="flex flex-wrap gap-4 bg-white p-4 rounded shadow items-center">
+                <input type="text" name="search" placeholder="🔍 Rechercher par objet ou détail" value="<?= htmlspecialchars($search) ?>" class="px-3 py-2 border rounded w-80">
 
-            <select name="statut" class="px-3 py-2 border rounded w-full">
-                <option value="">🟡 Statut</option>
-                <?php foreach ($statuts as $s): ?>
-                    <option value="<?= $s['id'] ?>" <?= $filter_status == $s['id'] ? 'selected' : '' ?>>
-                        <?= $s['libelle'] ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                <select name="statut" class="px-3 py-2 border rounded w-40">
+                    <option value="">🟡 Statut</option>
+                    <?php foreach ($statuts as $s): ?>
+                        <option value="<?= $s['id'] ?>" <?= $filter_status == $s['id'] ? 'selected' : '' ?>>
+                            <?= $s['libelle'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
 
-            <select name="entite" class="px-3 py-2 border rounded w-full">
-                <option value="">🏢 Entité</option>
-                <?php foreach ($entites as $e): ?>
-                    <option value="<?= $e['id'] ?>" <?= $filter_entite == $e['id'] ? 'selected' : '' ?>>
-                        <?= $e['nom'] ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                <select name="entite" class="px-3 py-2 border rounded w-40">
+                    <option value="">🏢 Entité</option>
+                    <?php foreach ($entites as $e): ?>
+                        <option value="<?= $e['id'] ?>" <?= $filter_entite == $e['id'] ? 'selected' : '' ?>>
+                            <?= $e['nom'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
 
-            <select name="type" class="px-3 py-2 border rounded w-full">
-                <option value="">📂 Type</option>
-                <?php foreach ($types as $t): ?>
-                    <option value="<?= $t['id'] ?>" <?= $filter_type == $t['id'] ? 'selected' : '' ?>>
-                        <?= $t['libelle'] ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                <select name="type" class="px-3 py-2 border rounded w-40">
+                    <option value="">📂 Type</option>
+                    <?php foreach ($types as $t): ?>
+                        <option value="<?= $t['id'] ?>" <?= $filter_type == $t['id'] ? 'selected' : '' ?>>
+                            <?= $t['libelle'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
 
-            <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>" class="px-3 py-2 border rounded w-full">
-        </form>
+                <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>" class="px-3 py-2 border rounded w-40">
 
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Filtrer
+                </button>
+            </form>
+        </div>
         <!-- Complaints List -->
         <div class="bg-white shadow rounded overflow-x-auto">
             <table class="min-w-full text-sm text-left">
@@ -157,7 +171,11 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
                                 <td class="px-4 py-2 font-semibold text-blue-800">#<?= $r["id"] ?></td>
                                 <td class="px-4 py-2"><?= htmlspecialchars($r["objet"]) ?></td>
                                 <td class="px-4 py-2"><?= $r["date_reception"] ?></td>
-                                <td class="px-4 py-2"><?= $r["statut"] ?></td>
+                                <td class="px-4 py-2">
+                                    <span class="inline-block px-2 py-1 rounded border text-xs font-semibold <?= $status_colors[strtolower($r["statut"])] ?? 'bg-gray-100 text-gray-800 border-gray-300' ?>">
+                                        <?= htmlspecialchars($r["statut"]) ?>
+                                    </span>
+                                </td>
                                 <td class="px-4 py-2"><?= $r["entite"] ?></td>
                                 <td class="px-4 py-2"><?= $r["type"] ?></td>
                                 <td class="px-4 py-2">
@@ -174,4 +192,5 @@ $types = $pdo->query("SELECT id, libelle FROM types_reclamation")->fetchAll(PDO:
     <script></script>
     <?php include "footer.php"; ?>
 </body>
+
 </html>
