@@ -13,6 +13,7 @@ $user_id = $_SESSION["user_id"];
 
 // === Filters ===
 $filter_status = $_GET["statut"] ?? "";
+$filter_urgence = $_GET["urgence"] ?? "";
 $filter_entite = $_GET["entite"] ?? "";
 $filter_type = $_GET["type"] ?? "";
 $search = $_GET["search"] ?? "";
@@ -30,6 +31,10 @@ if ($role === "agent") {
 if ($filter_status !== "") {
     $where .= " AND r.id_statut = ?";
     $params[] = $filter_status;
+}
+if ($filter_urgence !== "") {
+    $where .= " AND r.urgence = ?";
+    $params[] = $filter_urgence;
 }
 if ($filter_entite !== "") {
     $where .= " AND r.id_entite = ?";
@@ -50,7 +55,7 @@ if ($filter_date !== "") {
 }
 
 // === Get data ===
-$sql = "SELECT r.id, r.objet, r.date_reception, s.libelle AS statut, e.nom AS entite, t.libelle AS type
+$sql = "SELECT r.id, r.objet, r.date_reception, r.urgence, s.libelle AS statut, e.nom AS entite, t.libelle AS type
         FROM requetes r
         JOIN statuts s ON r.id_statut = s.id
         JOIN entites e ON r.id_entite = e.id
@@ -121,6 +126,13 @@ $status_colors = [
                     <?php endforeach; ?>
                 </select>
 
+                <select name="urgence" class="px-3 py-2 border rounded w-40">
+                    <option value="">🚩 Urgence</option>
+                    <option value="faible" <?= ($filter_urgence ?? '') === "faible" ? "selected" : "" ?>>Faible</option>
+                    <option value="normale" <?= ($filter_urgence ?? '') === "normale" ? "selected" : "" ?>>Normale</option>
+                    <option value="urgent" <?= ($filter_urgence ?? '') === "urgent" ? "selected" : "" ?>>Urgent</option>
+                </select>
+
                 <select name="entite" class="px-3 py-2 border rounded w-40">
                     <option value="">🏢 Entité</option>
                     <?php foreach ($entites as $e): ?>
@@ -155,6 +167,7 @@ $status_colors = [
                         <th class="px-4 py-3">Objet</th>
                         <th class="px-4 py-3">Réception</th>
                         <th class="px-4 py-3">Statut</th>
+                        <th class="px-4 py-3">Urgence</th>
                         <th class="px-4 py-3">Entité</th>
                         <th class="px-4 py-3">Type</th>
                         <th class="px-4 py-3">Action</th>
@@ -174,6 +187,19 @@ $status_colors = [
                                 <td class="px-4 py-2">
                                     <span class="inline-block px-2 py-1 rounded border text-xs font-semibold <?= $status_colors[strtolower($r["statut"])] ?? 'bg-gray-100 text-gray-800 border-gray-300' ?>">
                                         <?= htmlspecialchars($r["statut"]) ?>
+                                    </span>
+                                </td>
+                                <?php
+                                // Urgence color mapping
+                                $urgence_colors = [
+                                    "faible"  => "bg-green-100 text-green-800 border-green-300",
+                                    "normale" => "bg-yellow-100 text-yellow-800 border-yellow-300",
+                                    "urgent"  => "bg-red-100 text-red-800 border-red-300"
+                                ];
+                                ?>
+                                <td class="px-4 py-2">
+                                    <span class="inline-block px-2 py-1 rounded border text-xs font-semibold <?= $urgence_colors[strtolower($r["urgence"])] ?? 'bg-gray-100 text-gray-800 border-gray-300' ?>">
+                                        <?= htmlspecialchars(ucfirst($r["urgence"])) ?>
                                     </span>
                                 </td>
                                 <td class="px-4 py-2"><?= $r["entite"] ?></td>
