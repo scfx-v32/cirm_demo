@@ -51,9 +51,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["new_statut"])) {
         2 => 3  // prise en charge -> clôturée
     ];
 
-    if ($_SESSION["role"] === "agent" && isset($allowed_transitions[$current_statut]) && $allowed_transitions[$current_statut] === $new_statut) {
-        $update_stmt = $pdo->prepare("UPDATE requetes SET id_statut = ? WHERE id = ?");
-        $update_stmt->execute([$new_statut, $id]);
+    if ($_SESSION["role"] === "agent" &&
+        isset($allowed_transitions[$current_statut]) &&
+        $allowed_transitions[$current_statut] === $new_statut
+    ) {
+        if ($new_statut === 3) { // If closing
+            $update_stmt = $pdo->prepare("UPDATE requetes SET id_statut = ?, closed_by = ?, date_cloture = NOW() WHERE id = ?");
+            $update_stmt->execute([$new_statut, $_SESSION["user_id"], $id]);
+        } else {
+            $update_stmt = $pdo->prepare("UPDATE requetes SET id_statut = ? WHERE id = ?");
+            $update_stmt->execute([$new_statut, $id]);
+        }
         header("Location: dashboard.php");
         exit();
     } else {
