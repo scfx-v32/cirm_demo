@@ -127,7 +127,7 @@ $types = $pdo->query("SELECT id, entite_id, libelle FROM types_reclamation")->fe
 <head>
     <meta charset="UTF-8">
     <title>Ajouter Réclamation</title>
-    <link rel="favicon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
