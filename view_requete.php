@@ -80,6 +80,7 @@ include_once "nav.php";
 <head>
     <meta charset="UTF-8">
     <title>Détails Réclamation</title>
+    <link rel="favicon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         function confirmValidation() {

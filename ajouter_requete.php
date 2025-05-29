@@ -20,19 +20,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_requete'])) {
         // Start transaction
         $pdo->beginTransaction();
 
-        // 1. Insert contrevenant
-        $stmt = $pdo->prepare("INSERT INTO contrevenants 
-            (nom, prenom, cin, telephone, adresse) 
-            VALUES (?, ?, ?, ?, ?)");
+        // 1. Insert contrevenant only if at least one field is filled
+        $c_nom = trim($_POST['c_nom'] ?? '');
+        $c_prenom = trim($_POST['c_prenom'] ?? '');
+        $c_cin = trim($_POST['c_cin'] ?? '');
+        $c_telephone = trim($_POST['c_telephone'] ?? '');
+        $c_adresse = trim($_POST['c_adresse'] ?? '');
 
-        $stmt->execute([
-            $_POST['c_nom'],
-            $_POST['c_prenom'],
-            $_POST['c_cin'] ?? null,
-            $_POST['c_telephone'],
-            $_POST['c_adresse']
-        ]);
-        $id_contrevenant = $pdo->lastInsertId();
+        if ($c_nom !== '' || $c_prenom !== '' || $c_cin !== '' || $c_telephone !== '' || $c_adresse !== '') {
+            $stmt = $pdo->prepare("INSERT INTO contrevenants (nom, prenom, cin, telephone, adresse) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $c_nom,
+                $c_prenom,
+                $c_cin,
+                $c_telephone,
+                $c_adresse
+            ]);
+            $id_contrevenant = $pdo->lastInsertId();
+        } else {
+            $id_contrevenant = null;
+        }
 
         // 2. Prepare requête data
         $objet = $_POST["objet"];
@@ -120,6 +127,7 @@ $types = $pdo->query("SELECT id, entite_id, libelle FROM types_reclamation")->fe
 <head>
     <meta charset="UTF-8">
     <title>Ajouter Réclamation</title>
+    <link rel="favicon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>

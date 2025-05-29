@@ -29,11 +29,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Connexion | CiRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="favicon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col justify-between">
-    <main class="flex-grow flex items-center justify-center">
+    <main class="flex-grow flex flex-col items-center justify-center">
+        <br><br>
+        <img src="logo.png" alt="Logo CiRM" class="mb-6 h-20 w-auto">
         <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
             <h2 class="text-2xl font-bold mb-6 text-center">Connexion à CiRM</h2>
             <?php if ($error): ?>
